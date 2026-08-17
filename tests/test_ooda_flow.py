@@ -38,8 +38,32 @@ def test_submit_high_risk_incident_and_approve():
     # Resume graph execution via /approve endpoint
     approve_res = client.post(
         f"/api/incident/{incident_id}/approve",
-        json={"approved": True, "operator_notes": "Test approval"}
+        json={"approved": True, "operator_id": "TEST_OP_001", "operator_notes": "Test approval"}
     )
     assert approve_res.status_code == 200
     approve_data = approve_res.json()
     assert approve_data["is_verified"] is True
+
+def test_webhook_alertmanager_ingest():
+    payload = {
+        "alerts": [
+            {
+                "status": "firing",
+                "labels": {"alertname": "PostgresConnectionPoolExhausted"},
+                "annotations": {"summary": "DB Pool Exhausted"}
+            }
+        ]
+    }
+    response = client.post("/api/incident/webhook/alertmanager?mode=mock", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "incident_id" in data
+    assert data["execution_mode"] == "mock"
+
+def test_production_mode_forces_approval():
+    payload = {"telemetry": "echo 'safe telemetry log'", "execution_mode": "production"}
+    response = client.post("/api/incident/submit", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["is_interrupted"] is True
+    assert data["status"] == "AWAITING_APPROVAL"

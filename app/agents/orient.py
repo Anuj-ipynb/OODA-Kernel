@@ -1,3 +1,4 @@
+import time
 import logging
 from datetime import datetime, timezone
 from typing import Dict, Any
@@ -13,6 +14,7 @@ def orient_node(state: IncidentState) -> dict:
     """
     Orient Node: Analyzes normalized telemetry data to diagnose root cause using ChatNVIDIA and Pydantic output parsing.
     """
+    start_time = time.time()
     raw_logs = state.get("telemetry_logs", "")
     
     if not raw_logs or not isinstance(raw_logs, str):
@@ -52,14 +54,17 @@ def orient_node(state: IncidentState) -> dict:
         logger.error(f"LLM Orient analysis failed: {e}. Falling back to heuristic diagnosis.")
         analysis_result = _heuristic_orient(raw_logs)
 
+    latency_ms = round((time.time() - start_time) * 1000, 2)
     step_record = {
         "node": "orient",
         "status": "COMPLETED",
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "latency_ms": latency_ms,
         "details": analysis_result
     }
 
     return {
+        "status": "ORIENTING",
         "root_cause_analysis": analysis_result,
         "step_history": [step_record]
     }

@@ -1,21 +1,26 @@
+import time
 from datetime import datetime, timezone
 from app.core.state import IncidentState
 from app.sandbox.docker_exec import docker_exec
 
 def act_node(state: IncidentState) -> dict:
     """
-    Act Node: Executes the proposed remediation command inside the isolated sandbox environment.
+    Act Node: Executes the proposed remediation command inside the targeted execution environment (mock/staging/production).
     """
+    start_time = time.time()
     command = state.get("proposed_command", "echo 'no command specified'")
+    mode = state.get("execution_mode", "mock")
     timestamp = datetime.now(timezone.utc).isoformat()
     
-    output = docker_exec(command)
+    output = docker_exec(command, execution_mode=mode)
+    latency_ms = round((time.time() - start_time) * 1000, 2)
     
     step_item = {
         "node": "act",
-        "status": "completed",
+        "status": "COMPLETED",
         "timestamp": timestamp,
-        "details": {"command": command, "output": output}
+        "latency_ms": latency_ms,
+        "details": {"command": command, "output": output, "execution_mode": mode}
     }
     
     return {

@@ -9,6 +9,7 @@ class OrientAnalysisSchema(BaseModel):
 
 class DecideSchema(BaseModel):
     proposed_command: str = Field(description="Exact executable shell or python command for sandbox execution")
+    rollback_command: str = Field(default="echo 'No explicit rollback required'", description="Executable command to restore prior state if remediation fails")
     risk_score: float = Field(description="Risk assessment score between 0.0 (safe) and 1.0 (extremely risky/destructive)")
     is_destructive: bool = Field(default=False, description="True if the proposed action drops data, deletes files, or restarts critical services")
     explanation: str = Field(description="Explanation for why this remediation command was selected")

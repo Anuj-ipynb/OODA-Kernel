@@ -53,4 +53,6 @@ def test_decide_node_fallback_heuristic():
     result = decide_node(state)
     assert result["status"] == "DECIDING"
     assert "proposed_command" in result
+    assert "rollback_command" in result
+    assert result["rollback_command"] != ""
     assert result["risk_score"] > 0.70

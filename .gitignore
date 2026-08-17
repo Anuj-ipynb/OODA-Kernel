@@ -17,3 +17,10 @@ wheels/
 # Ignore markdown docs except README.md
 *.md
 !README.md
+
+# Databases & local persistent state
+*.db
+*.sqlite
+*.db-shm
+*.db-wal
+
