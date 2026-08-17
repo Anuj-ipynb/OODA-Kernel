@@ -1,0 +1,19 @@
+# Environment & Secrets
+.env
+.env.local
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.pytest_cache/
+
+# Ignore markdown docs except README.md
+*.md
+!README.md
