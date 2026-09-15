@@ -1,8 +1,10 @@
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from app.core.state import IncidentState
 from app.sandbox.docker_exec import docker_exec
+
 
 def rollback_node(state: IncidentState) -> dict:
     """
@@ -11,7 +13,7 @@ def rollback_node(state: IncidentState) -> dict:
     """
     start_time = time.time()
     current_retries = state.get("retry_count", 0)
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     new_retries = current_retries + 1
     
     rollback_cmd = state.get("rollback_command") or f"echo 'ROLLBACK FALLBACK FOR: {state.get('proposed_command')}'"

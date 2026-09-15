@@ -1,7 +1,7 @@
-import streamlit as st
-import requests
 import json
-import time
+
+import requests
+import streamlit as st
 
 API_BASE_URL = "http://localhost:8000/api/incident"
 
@@ -113,7 +113,7 @@ with st.sidebar:
             st.success(f"FastAPI Backend: Connected (v{data.get('version', '0.3.0')})")
         else:
             st.error("FastAPI Backend: HTTP Error")
-    except Exception:
+    except Exception:  # noqa: BLE001
         st.warning("FastAPI Backend: Offline (Start uvicorn)")
 
     st.info("💡 Safety Policy: `risk_score > 0.70` or `is_destructive == True` triggers automatic HITL approval barrier.")
@@ -198,7 +198,7 @@ with tab1:
                         endpoint = f"{API_BASE_URL}/webhook/otel?mode={mode}"
                         payload = json.loads(telemetry_input)
                         
-                    res = requests.post(endpoint, json=payload, timeout=10)
+                    res = requests.post(endpoint, json=payload, timeout=120)
                     if res.status_code == 200:
                         data = res.json()
                         st.session_state["last_incident_id"] = data.get("incident_id", "")
@@ -206,7 +206,7 @@ with tab1:
                         st.json(data)
                     else:
                         st.error(f"API Error ({res.status_code}): {res.text}")
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     st.error(f"Execution Error: {e}")
 
 # ==============================================================================
@@ -405,7 +405,7 @@ with tab2:
                         
             else:
                 st.error("Incident ID not found.")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             st.error(f"Error fetching state: {e}")
 
 # ==============================================================================
@@ -439,5 +439,5 @@ with tab3:
                 st.json(values)
             else:
                 st.error("Incident ID state not found.")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             st.error(f"Error loading audit trail: {e}")

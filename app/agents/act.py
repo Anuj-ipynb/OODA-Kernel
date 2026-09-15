@@ -1,7 +1,9 @@
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from app.core.state import IncidentState
 from app.sandbox.docker_exec import docker_exec
+
 
 def act_node(state: IncidentState) -> dict:
     """
@@ -10,7 +12,7 @@ def act_node(state: IncidentState) -> dict:
     start_time = time.time()
     command = state.get("proposed_command", "echo 'no command specified'")
     mode = state.get("execution_mode", "mock")
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     
     output = docker_exec(command, execution_mode=mode)
     latency_ms = round((time.time() - start_time) * 1000, 2)

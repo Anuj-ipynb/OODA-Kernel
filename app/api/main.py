@@ -1,5 +1,7 @@
 from fastapi import FastAPI, WebSocket
-from app.api.endpoints import router as incident_router, websocket_telemetry_stream
+
+from app.api.endpoints import router as incident_router
+from app.api.endpoints import websocket_telemetry_stream
 
 app = FastAPI(
     title="OODA-Kernel API",

@@ -1,11 +1,12 @@
-import uuid
 import asyncio
 import json
 import logging
-from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect, Request
-from pydantic import BaseModel, Field
+import uuid
+from typing import Any
+
+from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from langgraph.types import Command
+from pydantic import BaseModel, Field
 
 from app.agents.graph import create_ooda_graph
 from app.core.state import IncidentState
@@ -17,14 +18,14 @@ graph = create_ooda_graph()
 
 class IncidentSubmitRequest(BaseModel):
     telemetry: str
-    execution_mode: Optional[str] = Field(default="mock", description="mock | staging | production")
-    max_retries: Optional[int] = 3
+    execution_mode: str | None = Field(default="mock", description="mock | staging | production")
+    max_retries: int | None = 3
 
 class ApprovalRequest(BaseModel):
     approved: bool = True
-    operator_id: Optional[str] = Field(default="OPERATOR_ADMIN", description="ID of human operator approving action")
-    override_command: Optional[str] = None
-    operator_notes: Optional[str] = None
+    operator_id: str | None = Field(default="OPERATOR_ADMIN", description="ID of human operator approving action")
+    override_command: str | None = None
+    operator_notes: str | None = None
 
 @router.post("/submit")
 async def submit_incident(req: IncidentSubmitRequest):
@@ -117,7 +118,7 @@ async def get_incident_state(incident_id: str):
 # --- Live Webhook Ingestion Routes ---
 
 @router.post("/webhook/alertmanager")
-async def webhook_alertmanager(payload: Dict[str, Any], mode: Optional[str] = "mock"):
+async def webhook_alertmanager(payload: dict[str, Any], mode: str | None = "mock"):
     """Ingest webhook telemetry stream from Prometheus Alertmanager."""
     alerts = payload.get("alerts", [])
     telemetry_parts = []
@@ -130,7 +131,7 @@ async def webhook_alertmanager(payload: Dict[str, Any], mode: Optional[str] = "m
     return await submit_incident(IncidentSubmitRequest(telemetry=telemetry_logs, execution_mode=mode))
 
 @router.post("/webhook/pagerduty")
-async def webhook_pagerduty(payload: Dict[str, Any], mode: Optional[str] = "mock"):
+async def webhook_pagerduty(payload: dict[str, Any], mode: str | None = "mock"):
     """Ingest webhook telemetry stream from PagerDuty."""
     messages = payload.get("messages", [])
     telemetry_parts = []
@@ -144,7 +145,7 @@ async def webhook_pagerduty(payload: Dict[str, Any], mode: Optional[str] = "mock
     return await submit_incident(IncidentSubmitRequest(telemetry=telemetry_logs, execution_mode=mode))
 
 @router.post("/webhook/otel")
-async def webhook_otel(payload: Dict[str, Any], mode: Optional[str] = "mock"):
+async def webhook_otel(payload: dict[str, Any], mode: str | None = "mock"):
     """Ingest telemetry stream from OpenTelemetry log formatters."""
     resource_logs = payload.get("resourceLogs", [])
     telemetry_parts = []
@@ -173,7 +174,7 @@ async def websocket_telemetry_stream(websocket: WebSocket):
                 packet = json.loads(data_str)
                 telemetry_text = packet.get("telemetry", data_str)
                 mode = packet.get("execution_mode", "mock")
-            except Exception:
+            except Exception:  # noqa: BLE001
                 telemetry_text = data_str
                 mode = "mock"
 
@@ -182,5 +183,5 @@ async def websocket_telemetry_stream(websocket: WebSocket):
             await websocket.send_text(json.dumps(res))
     except WebSocketDisconnect:
         logger.info("WebSocket telemetry stream disconnected.")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error(f"WebSocket error: {e}")

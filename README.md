@@ -89,9 +89,6 @@ ooda_kernel/
 │   ├── test_llm_decide.py # Safety policy & LLM config unit tests
 │   ├── test_ooda_flow.py  # E2E graph & HITL integration tests
 │   └── test_sandbox.py    # Sandbox & fallback unit tests
-├── DESIGN.md            # System Architecture Specification
-├── CLAUDE.md            # Engineering Directives & Rules
-├── TASK.md              # Implementation Roadmap
 └── pyproject.toml       # Project metadata & dependencies
 ```
 

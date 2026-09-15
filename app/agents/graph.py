@@ -1,20 +1,19 @@
 import os
 import sqlite3
 import uuid
-from datetime import datetime, timezone
-from typing import Literal
-from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.memory import MemorySaver
+from datetime import UTC, datetime
+
 from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.graph import END, StateGraph
 from langgraph.types import interrupt
 
-from app.core.state import IncidentState
+from app.agents.act import act_node
+from app.agents.decide import decide_node
 from app.agents.observe import observe_node
 from app.agents.orient import orient_node
-from app.agents.decide import decide_node
-from app.agents.act import act_node
-from app.agents.verify import verify_node
 from app.agents.rollback import rollback_node
+from app.agents.verify import verify_node
+from app.core.state import IncidentState
 
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "ooda_checkpoint.db")
 
@@ -46,7 +45,7 @@ def hitl_gateway_node(state: IncidentState) -> dict:
             "reason": f"Action halts: risk_score ({risk_score:.2f}) > 0.70, destructive ({is_destructive}), or environment is '{mode}'."
         })
         
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
         operator_id = "UNKNOWN_OPERATOR"
         if isinstance(approval, dict):
             operator_id = approval.get("operator_id", "OPERATOR")

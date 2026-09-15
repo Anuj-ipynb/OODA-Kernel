@@ -1,6 +1,8 @@
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from app.core.state import IncidentState
+
 
 def observe_node(state: IncidentState) -> dict:
     """
@@ -8,7 +10,7 @@ def observe_node(state: IncidentState) -> dict:
     """
     start_time = time.time()
     telemetry = state.get("telemetry_logs", "")
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     
     # Process and summarize raw logs
     normalized_summary = f"Processed telemetry log trace ({len(telemetry)} chars)"

@@ -1,6 +1,8 @@
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from app.core.state import IncidentState
+
 
 def verify_node(state: IncidentState) -> dict:
     """
@@ -8,7 +10,7 @@ def verify_node(state: IncidentState) -> dict:
     """
     start_time = time.time()
     sandbox_output = state.get("sandbox_output", "")
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     
     # Verification check: Check if sandbox output indicates success
     is_verified = (

@@ -1,18 +1,18 @@
-import time
 import logging
-from datetime import datetime, timezone
-from typing import Dict, Any, Tuple
+import time
+from datetime import UTC, datetime
 
 from langchain_core.output_parsers import PydanticOutputParser
-from app.core.state import IncidentState
+
 from app.core.llm_factory import get_llm
 from app.core.schemas import DecideSchema
+from app.core.state import IncidentState
 
 logger = logging.getLogger(__name__)
 
 DANGEROUS_KEYWORDS = ["rm ", "rm -rf", "drop ", "truncate ", "delete ", "shutdown", "reboot", "pg_ctl restart", "format"]
 
-def apply_safety_policy(command: str, llm_risk_score: float, llm_is_destructive: bool, reasoning: str) -> Tuple[float, bool, str]:
+def apply_safety_policy(command: str, llm_risk_score: float, llm_is_destructive: bool, reasoning: str) -> tuple[float, bool, str]:
     """
     Safety Policy Guardrail: Evaluates the proposed command against dangerous keyword patterns.
     Forces high risk score if dangerous keywords are present.
@@ -79,7 +79,7 @@ def decide_node(state: IncidentState) -> dict:
             is_destructive = result.is_destructive
             reasoning = result.explanation
             logger.info(f"Decide Node LLM generated command: '{proposed_command}' (Risk: {risk_score})")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error(f"LLM Decide generation failed: {e}. Falling back to heuristic decision.")
         proposed_command, rollback_command, risk_score, is_destructive = _heuristic_decide(root_cause)
         reasoning = "Heuristic decision fallback."
@@ -94,7 +94,7 @@ def decide_node(state: IncidentState) -> dict:
     step_record = {
         "node": "decide",
         "status": "COMPLETED",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "latency_ms": latency_ms,
         "details": {
             "proposed_command": proposed_command,

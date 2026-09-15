@@ -1,6 +1,6 @@
-import os
 import logging
-from typing import Optional
+import os
+
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 # Load environment variables from .env file automatically
 load_dotenv()
 
-def get_llm_api_key() -> Optional[str]:
+def get_llm_api_key() -> str | None:
     """
     Returns the configured LLM API key.
     Checks LLM_API_KEY first, followed by provider-specific environment variables.

@@ -1,5 +1,5 @@
-import pytest
-from app.sandbox.docker_exec import docker_exec, mock_exec, is_docker_available
+from app.sandbox.docker_exec import docker_exec, mock_exec
+
 
 def test_mock_exec_success():
     output = mock_exec("echo 'remediating...'")

@@ -1,12 +1,13 @@
-import time
 import logging
-from datetime import datetime, timezone
-from typing import Dict, Any
+import time
+from datetime import UTC, datetime
+from typing import Any
 
 from langchain_core.output_parsers import PydanticOutputParser
-from app.core.state import IncidentState
+
 from app.core.llm_factory import get_llm
 from app.core.schemas import OrientAnalysisSchema
+from app.core.state import IncidentState
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ def orient_node(state: IncidentState) -> dict:
     
     user_prompt = f"Infrastructure Telemetry Logs:\n{raw_logs}"
 
-    analysis_result: Dict[str, Any] = {}
+    analysis_result: dict[str, Any] = {}
 
     try:
         llm = get_llm()
@@ -50,7 +51,7 @@ def orient_node(state: IncidentState) -> dict:
         }
         logger.info(f"Orient Node LLM structured diagnosis: {result.root_cause}")
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error(f"LLM Orient analysis failed: {e}. Falling back to heuristic diagnosis.")
         analysis_result = _heuristic_orient(raw_logs)
 
@@ -58,7 +59,7 @@ def orient_node(state: IncidentState) -> dict:
     step_record = {
         "node": "orient",
         "status": "COMPLETED",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "latency_ms": latency_ms,
         "details": analysis_result
     }

@@ -1,7 +1,6 @@
-import subprocess
-import shutil
 import logging
-from typing import Optional
+import shutil
+import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +58,6 @@ def docker_exec(
             logger.info("Docker daemon/container unavailable. Using mock execution fallback.")
             return mock_exec(command, execution_mode=execution_mode)
         return f"Error ({e.returncode}): {e.stderr.strip()}"
-    except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
+    except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:  # noqa: BLE001
         logger.warning(f"Docker execution failed ({type(e).__name__}): {e}. Falling back to mock execution.")
         return mock_exec(command, execution_mode=execution_mode)
